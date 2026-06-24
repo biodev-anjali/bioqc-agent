@@ -1,17 +1,17 @@
-import os
 from collections.abc import Generator
 
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
-
-load_dotenv()
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./bioqc.db")
+from config import get_settings
 
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+settings = get_settings()
 
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
+connect_args = (
+    {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
+)
+
+engine = create_engine(settings.database_url, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -30,4 +30,6 @@ def get_db() -> Generator:
 def init_db() -> None:
     import models  # noqa: F401
 
+    settings.upload_dir.mkdir(parents=True, exist_ok=True)
+    settings.reports_dir.mkdir(parents=True, exist_ok=True)
     Base.metadata.create_all(bind=engine)
