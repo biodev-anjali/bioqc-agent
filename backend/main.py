@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import get_settings
 from database import init_db
 from routers.jobs import router as jobs_router
+from routers.parsing import router as parsing_router
 from schemas import HealthResponse
 
 SERVICE_NAME = "bioqc-agent"
@@ -21,7 +22,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="BioQC Agent API",
     description="Backend API for BioQC Agent",
-    version="0.2.0",
+    version="0.3.0",
     lifespan=lifespan,
 )
 
@@ -34,6 +35,7 @@ app.add_middleware(
 )
 
 app.include_router(jobs_router, prefix=settings.api_prefix)
+app.include_router(parsing_router, prefix=settings.api_prefix)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
