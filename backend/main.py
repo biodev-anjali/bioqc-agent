@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import get_settings
 from database import init_db
+from routers.ai import router as ai_router
 from routers.jobs import router as jobs_router
 from routers.parsing import router as parsing_router
 from schemas import HealthResponse
@@ -36,6 +37,7 @@ app.add_middleware(
 
 app.include_router(jobs_router, prefix=settings.api_prefix)
 app.include_router(parsing_router, prefix=settings.api_prefix)
+app.include_router(ai_router, prefix=settings.api_prefix)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])

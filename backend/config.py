@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     allowed_extensions: str = ".zip,.html,.gz,.tar.gz"
     cors_origins: str = "http://localhost:3000"
     api_prefix: str = "/api"
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-3.5-flash"
 
     @property
     def max_upload_size_bytes(self) -> int:
