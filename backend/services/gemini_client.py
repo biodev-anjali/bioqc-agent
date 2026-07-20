@@ -1,4 +1,5 @@
 from google import genai
+from google.genai import types
 
 from config import get_settings
 
@@ -24,17 +25,34 @@ class GeminiClient:
 
     def health_check(self) -> dict[str, str]:
         """Verify Gemini connectivity with a tiny text generation request."""
-        try:
-            response = self._client.models.generate_content(
-                model=self.model,
-                contents="Reply with exactly: ok",
-            )
-        except Exception as exc:
-            raise GeminiClientError(
-                f"Gemini connectivity check failed: {exc}"
-            ) from exc
+        response_text = self.generate_text("Reply with exactly: ok")
 
         return {
             "model": self.model,
-            "response": (response.text or "").strip(),
+            "response": response_text.strip(),
         }
+
+    def generate_text(
+        self,
+        contents: str,
+        response_mime_type: str | None = None,
+    ) -> str:
+        """Generate text from Gemini with optional response MIME constraints."""
+        config = None
+        if response_mime_type is not None:
+            config = types.GenerateContentConfig(
+                response_mime_type=response_mime_type,
+            )
+
+        try:
+            response = self._client.models.generate_content(
+                model=self.model,
+                contents=contents,
+                config=config,
+            )
+        except Exception as exc:
+            raise GeminiClientError(
+                f"Gemini content generation failed: {exc}"
+            ) from exc
+
+        return response.text or ""
